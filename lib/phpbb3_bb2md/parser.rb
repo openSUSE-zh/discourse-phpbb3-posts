@@ -1,7 +1,7 @@
 require 'mysql2'
 
 module PHPBB3_BB2MD
-  # extract thanks from database
+  # extract posts from database
   class Parser
     def initialize(conf)
       # {'source'=>ostruct, 'dest'=>ostruct}
@@ -15,7 +15,7 @@ module PHPBB3_BB2MD
     end
 
     def get
-      get_data_from_thanks_table
+      get_data_from_posts_table
     end
 
     def put
@@ -24,17 +24,16 @@ module PHPBB3_BB2MD
 
     private
 
-    def get_data_from_thanks_table
-      thanks_data = @mysql.query("SELECT * FROM #{@source_ostruct.table_prefix}thanks")
-      thanks_data.each do |row|
-	hash = {}
-        post_title = get_post_title
+    def get_data_from_posts_table
+      posts_data = @mysql.query("SELECT post_id,post_text FROM #{@source_ostruct.table_prefix}posts")
+      open('posts.txt', 'w:UTF-8') do |f|
+        posts_data.each do |row|
+	  f.write "Starting #{row['post_id']}, text #{row['post_text']}"
+	  post_text = BB2MD::Paser.new(post_text)
+  	end
       end
-    end
-
-    def get_post_title(post_id)
     end
   end
 end
-#require './config.rb'
-#p PHPBB3_BB2MD::Parser.new('config').get
+require './config.rb'
+PHPBB3_BB2MD::Parser.new('config').get
