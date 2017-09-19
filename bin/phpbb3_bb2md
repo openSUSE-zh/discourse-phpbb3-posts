@@ -4,4 +4,6 @@ $LOAD_PATH.push(File.expand_path(File.dirname(__FILE__) + '/../lib'))
 
 require 'phpbb3_bb2md'
 
+config = ARGV[0] || "config"
 
+PHPBB3_BB2MD::Parser.new(config).parse

@@ -5,7 +5,7 @@ require 'phpbb3_bb2md/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "phpbb3_bb2md"
-  spec.version       = PHPBB3_Thanks::VERSION
+  spec.version       = PHPBB3_BB2MD::VERSION
   spec.authors       = ["marguerite"]
   spec.email         = ["i@marguerite.su"]
 

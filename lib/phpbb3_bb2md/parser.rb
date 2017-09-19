@@ -1,4 +1,5 @@
 require 'mysql2'
+require 'bb2md'
 
 module PHPBB3_BB2MD
   # extract posts from database
@@ -14,26 +15,30 @@ module PHPBB3_BB2MD
 				   :password => @source_ostruct.password)
     end
 
-    def get
-      get_data_from_posts_table
-    end
+    def parse
+      data = get_data_from_posts_table
+      data.each do |row|
+        unless row[2] == row[4]
+          @mysql.query("UPDATE #{@source_ostruct.table_prefix}posts SET post_text=\"#{@mysql.escape(row[2])}\" WHERE bbcode_uid=\"#{row[0]}\"")
+        end
 
-    def put
-
+        unless row[1] == row[3]
+          @mysql.query("UPDATE #{@source_ostruct.table_prefix}posts SET post_subject=\"#{@mysql.escape(row[1])}\" WHERE bbcode_uid=\"#{row[0]}\"")
+        end
+      end
     end
 
     private
 
     def get_data_from_posts_table
-      posts_data = @mysql.query("SELECT post_id,post_text FROM #{@source_ostruct.table_prefix}posts")
-      open('posts.txt', 'w:UTF-8') do |f|
-        posts_data.each do |row|
-	  f.write "Starting #{row['post_id']}, text #{row['post_text']}"
-	  post_text = BB2MD::Paser.new(post_text)
-  	end
+      posts_data = @mysql.query("SELECT bbcode_uid,post_text,post_subject FROM #{@source_ostruct.table_prefix}posts")
+      data = []
+      posts_data.each do |row|
+	post_text = BB2MD::Parser.new(row['post_text'], row['bbcode_uid']).parse
+        data << [row['bbcode_uid'], LatinCJK::Parser.new(row['post_subject']).text,
+                 post_text, row['post_subject'], row['post_text']]
       end
+      data
     end
   end
 end
-require './config.rb'
-PHPBB3_BB2MD::Parser.new('config').get
