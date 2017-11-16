@@ -18,13 +18,8 @@ module PHPBB3_BB2MD
     def parse
       data = get_data_from_posts_table
       data.each do |row|
-        unless row[2] == row[4]
-          @mysql.query("UPDATE #{@source_ostruct.table_prefix}posts SET post_text=\"#{@mysql.escape(row[2])}\" WHERE bbcode_uid=\"#{row[0]}\"")
-        end
-
-        unless row[1] == row[3]
-          @mysql.query("UPDATE #{@source_ostruct.table_prefix}posts SET post_subject=\"#{@mysql.escape(row[1])}\" WHERE bbcode_uid=\"#{row[0]}\"")
-        end
+        @mysql.query("UPDATE #{@source_ostruct.table_prefix}posts SET post_text=\"#{@mysql.escape(row[2])}\" WHERE bbcode_uid=\"#{row[0]}\"")
+        @mysql.query("UPDATE #{@source_ostruct.table_prefix}posts SET post_subject=\"#{@mysql.escape(row[1])}\" WHERE bbcode_uid=\"#{row[0]}\"")
       end
     end
 
@@ -35,8 +30,7 @@ module PHPBB3_BB2MD
       data = []
       posts_data.each do |row|
 	post_text = BB2MD::Parser.new(row['post_text'], row['bbcode_uid']).parse
-        data << [row['bbcode_uid'], LatinCJK::Parser.new(row['post_subject']).text,
-                 post_text, row['post_subject'], row['post_text']]
+        data << [row['bbcode_uid'], LatinCJK::Parser.new(row['post_subject']).text,post_text]
       end
       data
     end
